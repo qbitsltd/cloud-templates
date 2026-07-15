@@ -1,0 +1,9 @@
+name = "loksewa-ioe-tutor"
+main = "src/index.ts"
+compatibility_date = "2026-07-15"
+
+[vars]
+QBITS_VALIDATE_URL = "https://api.qbits.ltd/api/validate"
+INSTALLATION_TOKEN = "__INSTALLATION_TOKEN__"
+OPERATION_TOKEN = "__OPERATION_TOKEN__"
+SCORING_MODE = "strict-json"

@@ -1,0 +1,13 @@
+name = "syllabus-smasher"
+main = "src/index.ts"
+compatibility_date = "2026-07-15"
+
+[vars]
+QBITS_VALIDATE_URL = "https://api.qbits.ltd/api/validate"
+INSTALLATION_TOKEN = "__INSTALLATION_TOKEN__"
+OPERATION_TOKEN = "__OPERATION_TOKEN__"
+NOTES_KV_NAMESPACE = "course-notes"
+
+[[kv_namespaces]]
+binding = "NOTES"
+id = "replace-with-your-kv-namespace-id"

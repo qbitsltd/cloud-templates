@@ -1,0 +1,9 @@
+{
+  "name": "qbits-cloud-templates",
+  "private": true,
+  "workspaces": [
+    "syllabus-smasher",
+    "loksewa-ioe-tutor",
+    "sight-assist"
+  ]
+}
