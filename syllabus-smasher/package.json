@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "deploy": "wrangler deploy"
+    "deploy": "node ./scripts/validate-qbits.mjs && wrangler deploy"
   },
   "dependencies": {
     "hono": "^4.10.4"

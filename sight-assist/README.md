@@ -5,4 +5,4 @@ A multimodal image-analysis Worker with a clean upload surface, live preview, an
 Deploy with:
 
 `npm install`
-`npx wrangler deploy`
+`npm run deploy`

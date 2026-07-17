@@ -5,4 +5,4 @@ A study-note chat Worker with a polished revision interface, edge retrieval, and
 Deploy with:
 
 `npm install`
-`npx wrangler deploy`
+`npm run deploy`

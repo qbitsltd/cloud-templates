@@ -5,4 +5,4 @@ A strict-answer evaluator with a focused exam dashboard, 0-10 scoring, and relia
 Deploy with:
 
 `npm install`
-`npx wrangler deploy`
+`npm run deploy`
