@@ -18,6 +18,5 @@ Before deploy:
 
 1. Replace `__INSTALLATION_TOKEN__` and `__OPERATION_TOKEN__` in `wrangler.toml`
 2. Point `SUPERTONIC_BASE_URL` at your running Supertonic server
-3. If your server requires auth, set `SUPERTONIC_API_KEY`
 
 This starter targets Supertonic's native `POST /v1/tts` endpoint so it can pass `lang`, `voice`, `speed`, and `steps` directly.

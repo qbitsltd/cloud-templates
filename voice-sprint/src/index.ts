@@ -7,7 +7,6 @@ type Env = {
   OPERATION_TOKEN: string;
   QBITS_VALIDATE_URL: string;
   SUPERTONIC_BASE_URL: string;
-  SUPERTONIC_API_KEY: string;
 };
 
 type SynthesisRequest = {
@@ -68,17 +67,11 @@ app.post("/synthesize", async (c) => {
     return c.json(normalized, 400);
   }
 
-  const headers = new Headers({
-    "content-type": "application/json",
-  });
-
-  if (c.env.SUPERTONIC_API_KEY) {
-    headers.set("authorization", `Bearer ${c.env.SUPERTONIC_API_KEY}`);
-  }
-
   const upstreamResponse = await fetch(buildUpstreamUrl(c.env.SUPERTONIC_BASE_URL), {
     method: "POST",
-    headers,
+    headers: {
+      "content-type": "application/json",
+    },
     body: JSON.stringify({
       text: normalized.text,
       voice: normalized.voice,
