@@ -4,6 +4,7 @@
   "workspaces": [
     "syllabus-smasher",
     "loksewa-ioe-tutor",
-    "sight-assist"
+    "sight-assist",
+    "voice-sprint"
   ]
 }

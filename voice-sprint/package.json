@@ -1,0 +1,16 @@
+{
+  "name": "@qbits/voice-sprint",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "node ./scripts/validate-qbits.mjs && wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "^4.10.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260710.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.40.0"
+  }
+}
