@@ -3,6 +3,7 @@ import process from "node:process";
 
 const installationPlaceholder = "__INSTALLATION_TOKEN__";
 const operationPlaceholder = "__OPERATION_TOKEN__";
+const defaultTimeoutMs = 8000;
 
 function readTomlVar(content, name) {
   const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -31,16 +32,31 @@ async function main() {
     );
   }
 
-  const response = await fetch(validateUrl, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      installationToken,
-      operationToken,
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), defaultTimeoutMs);
+  let response;
+
+  try {
+    response = await fetch(validateUrl, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        installationToken,
+        operationToken,
+      }),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown network error";
+    console.warn(
+      `Qbits pre-deploy validation could not reach ${validateUrl} (${message}). Continuing deploy because runtime validation is still enforced by the Worker.`,
+    );
+    return;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   let payload = null;
 
