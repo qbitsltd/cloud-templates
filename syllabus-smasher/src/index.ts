@@ -9,6 +9,7 @@ type Env = {
   NOTES: KVNamespace;
   QBITS_SKIP_VALIDATION?: string;
   QBITS_VALIDATE_URL: string;
+  RUNS: KVNamespace;
 };
 
 const app = new Hono<{ Bindings: Env }>();
@@ -31,6 +32,25 @@ function extractText(result: unknown): string | null {
 
 function shouldSkipValidation(env: Env) {
   return env.QBITS_SKIP_VALIDATION === "true";
+}
+
+function createRunId() {
+  return `syllabus-smasher:${Date.now()}:${crypto.randomUUID()}`;
+}
+
+async function persistRun(env: Env, runId: string, payload: Record<string, unknown>) {
+  try {
+    await env.RUNS.put(
+      runId,
+      JSON.stringify({
+        runId,
+        savedAt: new Date().toISOString(),
+        ...payload,
+      }),
+    );
+  } catch (error) {
+    console.error("Failed to persist Syllabus Smasher run", error);
+  }
 }
 
 async function validateQbits(c: any) {
@@ -71,25 +91,69 @@ app.post("/chat", async (c) => {
   }>();
 
   const notes = (await c.env.NOTES.get(courseId)) ?? "No notes found for this course.";
+  const runId = createRunId();
+  const notesFound = notes !== "No notes found for this course.";
 
-  const aiResponse = await c.env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", {
-    messages: [
-      {
-        role: "system",
-        content:
-          "Answer only from the provided study notes. If notes are incomplete, say what is missing.",
-      },
-      {
-        role: "user",
-        content: `Course notes:\n${notes}\n\nStudent question: ${question}`,
-      },
-    ],
-  });
+  try {
+    const aiResponse = await c.env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", {
+      messages: [
+        {
+          role: "system",
+          content:
+            "Answer only from the provided study notes. If notes are incomplete, say what is missing.",
+        },
+        {
+          role: "user",
+          content: `Course notes:\n${notes}\n\nStudent question: ${question}`,
+        },
+      ],
+    });
+    const answer = extractText(aiResponse) ?? "No answer returned.";
 
-  return c.json({
-    answer: extractText(aiResponse) ?? "No answer returned.",
-    courseId,
-  });
+    await persistRun(c.env, runId, {
+      template: "syllabus-smasher",
+      success: true,
+      request: {
+        courseId,
+        question,
+      },
+      response: {
+        answer,
+        notesFound,
+      },
+    });
+
+    return c.json({
+      answer,
+      courseId,
+      runId,
+    });
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+
+    await persistRun(c.env, runId, {
+      template: "syllabus-smasher",
+      success: false,
+      request: {
+        courseId,
+        question,
+      },
+      response: {
+        error: "Answer generation failed.",
+        details,
+        notesFound,
+      },
+    });
+
+    return c.json(
+      {
+        error: "Answer generation failed.",
+        details,
+        runId,
+      },
+      502,
+    );
+  }
 });
 
 export default app;

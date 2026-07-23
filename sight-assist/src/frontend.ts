@@ -7,24 +7,28 @@ export const sightAssistHtml = `<!doctype html>
     <style>
       :root {
         color-scheme: dark;
-        --bg: #07171b;
-        --bg-deep: #051015;
-        --panel: rgba(9, 29, 35, 0.88);
-        --panel-strong: rgba(8, 24, 29, 0.96);
-        --panel-soft: rgba(13, 41, 47, 0.72);
-        --line: rgba(143, 226, 206, 0.14);
-        --line-strong: rgba(143, 226, 206, 0.26);
-        --text: #f1fbf8;
-        --muted: #92b9b0;
-        --soft: #b7d1ca;
-        --accent: #8fe2ce;
-        --accent-strong: #66d5bd;
-        --danger: #ff8f7a;
-        --shadow: 0 28px 80px rgba(1, 7, 9, 0.34);
-        --radius-xl: 28px;
+        --bg: #071417;
+        --bg-deep: #041014;
+        --ink: #eff8f4;
+        --muted: #8fab9f;
+        --muted-strong: #b7cdc4;
+        --accent: #8ee3cd;
+        --accent-strong: #63d7bb;
+        --accent-soft: rgba(142, 227, 205, 0.12);
+        --line: rgba(142, 227, 205, 0.14);
+        --line-strong: rgba(142, 227, 205, 0.28);
+        --surface-dark: linear-gradient(180deg, rgba(6, 23, 28, 0.96) 0%, rgba(4, 17, 21, 0.98) 100%);
+        --surface-mint: linear-gradient(180deg, rgba(17, 48, 53, 0.96) 0%, rgba(8, 26, 31, 0.98) 100%);
+        --surface-plain: linear-gradient(180deg, rgba(10, 30, 35, 0.92) 0%, rgba(6, 20, 24, 0.96) 100%);
+        --surface-panel: linear-gradient(180deg, rgba(11, 24, 28, 0.98) 0%, rgba(6, 17, 20, 0.98) 100%);
+        --paper: linear-gradient(180deg, rgba(245, 252, 248, 0.97) 0%, rgba(228, 240, 234, 0.95) 100%);
+        --danger: #ff917e;
+        --radius-xl: 30px;
         --radius-lg: 22px;
         --radius-md: 16px;
         --radius-sm: 12px;
+        --shadow-lg: 0 30px 70px rgba(0, 0, 0, 0.28);
+        --shadow-md: 0 18px 34px rgba(0, 0, 0, 0.2);
       }
 
       * {
@@ -33,23 +37,21 @@ export const sightAssistHtml = `<!doctype html>
 
       html {
         background:
-          radial-gradient(circle at 0% 0%, rgba(143, 226, 206, 0.12), transparent 24%),
-          radial-gradient(circle at 100% 0%, rgba(75, 162, 145, 0.14), transparent 26%),
-          linear-gradient(180deg, #061216 0%, #07171b 100%);
+          radial-gradient(circle at top left, rgba(142, 227, 205, 0.12), transparent 24%),
+          linear-gradient(180deg, #071417 0%, #061216 100%);
       }
 
       body {
         margin: 0;
         min-height: 100dvh;
-        color: var(--text);
+        color: var(--ink);
         font-family: "Avenir Next", "Segoe UI Variable Display", "Segoe UI", sans-serif;
         background:
-          linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-          linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-          radial-gradient(circle at top, rgba(143, 226, 206, 0.12), transparent 36%),
-          linear-gradient(180deg, #07171b 0%, #061317 100%);
-        background-size: 40px 40px, 40px 40px, auto, auto;
-        background-position: center;
+          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+          radial-gradient(circle at top, rgba(142, 227, 205, 0.08), transparent 32%),
+          linear-gradient(180deg, #071417 0%, #061216 100%);
+        background-size: 48px 48px, 48px 48px, auto, auto;
       }
 
       button,
@@ -61,109 +63,111 @@ export const sightAssistHtml = `<!doctype html>
       .shell {
         width: min(1320px, calc(100vw - 32px));
         margin: 0 auto;
-        padding: 24px 0 40px;
+        padding: 28px 0 44px;
       }
 
       .topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 22px;
-        padding: 8px 2px;
+        gap: 18px;
+        margin-bottom: 24px;
+        color: var(--muted);
       }
 
-      .brand {
+      .brandline {
         display: inline-flex;
         align-items: center;
         gap: 12px;
-        color: var(--soft);
         font-size: 13px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
-      .brand-mark {
+      .branddot {
         width: 12px;
         height: 12px;
         border-radius: 999px;
         background: var(--accent);
-        box-shadow: 0 0 0 6px rgba(143, 226, 206, 0.08);
+        box-shadow: 0 0 0 6px rgba(142, 227, 205, 0.08);
       }
 
-      .topbar-note {
-        color: var(--muted);
+      .topnote {
+        max-width: 42ch;
         font-size: 13px;
+        line-height: 1.55;
+        text-align: right;
       }
 
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 1.06fr) minmax(320px, 0.94fr);
+        grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
         gap: 22px;
-        margin-bottom: 18px;
+        margin-bottom: 22px;
       }
 
-      .hero-copy,
-      .hero-stage,
-      .control-card,
-      .stage-card,
-      .metric {
+      .intro-panel,
+      .flow-panel,
+      .sidebar,
+      .canvas {
         border: 1px solid var(--line);
-        background: linear-gradient(180deg, var(--panel) 0%, var(--panel-strong) 100%);
-        box-shadow: var(--shadow);
+        box-shadow: var(--shadow-lg);
       }
 
-      .hero-copy,
-      .hero-stage,
-      .stage-card {
+      .intro-panel,
+      .flow-panel,
+      .canvas {
         border-radius: var(--radius-xl);
       }
 
-      .hero-copy {
-        padding: 28px 30px 30px;
+      .intro-panel {
+        padding: 30px 32px 32px;
+        background: var(--surface-dark);
       }
 
       .eyebrow {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         color: var(--accent);
         font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
         font-size: 11px;
+        font-weight: 600;
         letter-spacing: 0.18em;
         text-transform: uppercase;
       }
 
       .eyebrow::before {
         content: "";
-        width: 24px;
+        width: 26px;
         height: 1px;
         background: currentColor;
       }
 
       h1 {
         margin: 18px 0 14px;
-        max-width: 9ch;
-        font-size: clamp(3rem, 5vw, 5.8rem);
-        line-height: 0.92;
-        letter-spacing: -0.06em;
+        max-width: 8ch;
+        font-size: clamp(3rem, 5vw, 5.6rem);
+        line-height: 0.9;
+        letter-spacing: -0.065em;
       }
 
       .lede {
         max-width: 42ch;
-        color: var(--soft);
+        color: var(--muted-strong);
         font-size: 17px;
         line-height: 1.65;
       }
 
-      .hero-actions {
+      .signal-row {
         display: flex;
         align-items: center;
         gap: 14px;
-        margin-top: 26px;
+        margin-top: 28px;
+        flex-wrap: wrap;
       }
 
-      .hero-chip {
+      .signal-chip {
         display: inline-flex;
         align-items: center;
         gap: 10px;
@@ -171,210 +175,246 @@ export const sightAssistHtml = `<!doctype html>
         padding: 0 18px;
         border: 1px solid var(--line-strong);
         border-radius: 999px;
-        color: var(--text);
         background: rgba(255, 255, 255, 0.03);
+        color: var(--ink);
         font-size: 14px;
       }
 
-      .hero-chip-dot {
-        width: 9px;
-        height: 9px;
+      .signal-chip::before {
+        content: "";
+        width: 8px;
+        height: 8px;
         border-radius: 999px;
         background: var(--accent);
       }
 
-      .hero-meta {
+      .signal-copy {
         color: var(--muted);
         font-size: 14px;
       }
 
-      .hero-stage {
-        position: relative;
-        overflow: hidden;
+      .flow-panel {
         padding: 22px;
+        background: var(--surface-mint);
       }
 
-      .hero-stage::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background:
-          radial-gradient(circle at 18% 24%, rgba(143, 226, 206, 0.18), transparent 24%),
-          linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 48%);
-        pointer-events: none;
-      }
-
-      .stage-window {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        gap: 18px;
+      .flow-shell {
         height: 100%;
-        padding: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
         border-radius: 24px;
-        background:
-          linear-gradient(180deg, rgba(8, 24, 29, 0.94), rgba(8, 24, 29, 0.72));
+        background: rgba(4, 17, 21, 0.74);
       }
 
-      .window-bar {
+      .flow-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 14px;
+        gap: 12px;
+        margin-bottom: 16px;
       }
 
-      .window-dots {
+      .flow-dots {
         display: flex;
-        gap: 7px;
+        gap: 8px;
       }
 
-      .window-dots span {
+      .flow-dots span {
         width: 8px;
         height: 8px;
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.2);
       }
 
-      .window-label {
+      .flow-label {
         color: var(--muted);
         font-size: 12px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
-      .sample-figure {
+      .flow-steps {
         display: grid;
-        grid-template-columns: 180px minmax(0, 1fr);
-        gap: 18px;
-        align-items: center;
-        min-height: 210px;
+        gap: 12px;
       }
 
-      .sample-image {
+      .step-card {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+        padding: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .step-card.is-primary {
+        background: linear-gradient(180deg, rgba(142, 227, 205, 0.14) 0%, rgba(142, 227, 205, 0.05) 100%);
+        border-color: rgba(142, 227, 205, 0.18);
+      }
+
+      .step-index {
         display: grid;
         place-items: center;
-        aspect-ratio: 1;
-        border-radius: 22px;
-        background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(245, 248, 247, 0.88));
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
       }
 
-      .sample-image img {
-        width: 100%;
-        max-width: 116px;
-        height: auto;
-      }
-
-      .sample-copy h2,
-      .stage-head h2,
-      .result-card h3,
-      .control-card h2 {
-        margin: 0;
+      .step-copy strong {
+        display: block;
+        font-size: 17px;
         letter-spacing: -0.03em;
       }
 
-      .sample-copy h2 {
-        font-size: clamp(1.45rem, 2vw, 2rem);
-      }
-
-      .sample-copy p {
-        margin: 10px 0 0;
-        color: var(--muted);
-        line-height: 1.65;
-      }
-
-      .sample-points {
-        display: grid;
-        gap: 10px;
-        padding: 0;
-        margin: 16px 0 0;
-        list-style: none;
-      }
-
-      .sample-points li {
-        color: var(--soft);
-        font-size: 14px;
-        line-height: 1.5;
-      }
-
-      .sample-points li::before {
-        content: "•";
-        display: inline-block;
-        width: 1em;
-        color: var(--accent);
-      }
-
-      .metrics {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
-        margin-bottom: 22px;
-      }
-
-      .metric {
-        border-radius: var(--radius-md);
-        padding: 18px 20px;
-      }
-
-      .metric-label {
-        display: block;
-        margin-bottom: 8px;
-        color: var(--text);
-        font-size: 15px;
-        font-weight: 700;
-      }
-
-      .metric-copy {
-        color: var(--muted);
-        font-size: 14px;
+      .step-copy p {
+        margin: 8px 0 0;
+        color: var(--muted-strong);
         line-height: 1.6;
       }
 
-      .workspace {
-        display: grid;
-        grid-template-columns: minmax(290px, 360px) minmax(0, 1fr);
-        gap: 18px;
-        align-items: start;
+      .capsules {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
       }
 
-      .control-card {
-        position: sticky;
-        top: 20px;
-        border-radius: var(--radius-lg);
-        padding: 24px;
+      .capsule {
+        min-width: 220px;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.025);
       }
 
-      .control-card h2 {
-        font-size: 1.8rem;
-        margin-bottom: 10px;
+      .capsule strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 15px;
       }
 
-      .control-card p {
+      .capsule span {
         color: var(--muted);
-        line-height: 1.65;
+        font-size: 13px;
+        line-height: 1.55;
       }
 
-      .control-form {
+      .workbench {
         display: grid;
-        gap: 16px;
-        margin-top: 24px;
+        grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+        gap: 18px;
       }
 
-      .input-block {
+      .sidebar {
+        position: sticky;
+        top: 18px;
+        overflow: hidden;
+        border-radius: 24px;
+        background: var(--surface-mint);
+      }
+
+      .sidebar::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 5px;
+        background: linear-gradient(180deg, var(--accent) 0%, rgba(142, 227, 205, 0.1) 100%);
+      }
+
+      .sidebar-inner {
+        position: relative;
+        padding: 24px 24px 22px 26px;
+      }
+
+      .sidebar h2,
+      .canvas-title {
+        margin: 0;
+        font-size: clamp(1.9rem, 2.1vw, 2.5rem);
+        letter-spacing: -0.045em;
+      }
+
+      .sidebar p {
+        margin: 12px 0 0;
+        color: var(--muted-strong);
+        line-height: 1.62;
+      }
+
+      .divider {
+        height: 1px;
+        margin: 22px 0;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .form {
         display: grid;
-        gap: 8px;
+        gap: 18px;
       }
 
-      .input-label {
-        color: var(--soft);
-        font-size: 12px;
+      .field {
+        display: grid;
+        gap: 10px;
+      }
+
+      .field-shell {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        background: rgba(4, 15, 18, 0.22);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        transition:
+          border-color 180ms ease,
+          background 180ms ease,
+          box-shadow 180ms ease;
+      }
+
+      .field-shell:focus-within {
+        border-color: var(--line-strong);
+        background: rgba(4, 15, 18, 0.36);
+        box-shadow:
+          0 0 0 4px rgba(142, 227, 205, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+
+      .field-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .field-tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.04);
+        font-size: 11px;
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
-      .input-help {
+      .field-label {
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      .field-help {
         color: var(--muted);
         font-size: 13px;
         line-height: 1.55;
@@ -383,28 +423,32 @@ export const sightAssistHtml = `<!doctype html>
       textarea,
       .file-trigger {
         width: 100%;
-        border: 1px solid var(--line);
-        border-radius: var(--radius-md);
-        background: rgba(255, 255, 255, 0.03);
-        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        background: rgba(3, 11, 13, 0.48);
+        color: var(--ink);
         transition:
           border-color 180ms ease,
-          transform 180ms ease,
           background 180ms ease,
+          transform 180ms ease,
           box-shadow 180ms ease;
       }
 
       textarea {
-        min-height: 132px;
+        min-height: 136px;
         padding: 16px 18px;
         resize: vertical;
         outline: none;
+        line-height: 1.6;
       }
 
       textarea:focus {
-        border-color: var(--line-strong);
-        background: rgba(255, 255, 255, 0.04);
-        box-shadow: 0 0 0 4px rgba(143, 226, 206, 0.08);
+        border-color: rgba(142, 227, 205, 0.18);
+        background: rgba(3, 11, 13, 0.72);
+      }
+
+      textarea::placeholder {
+        color: #7f9d95;
       }
 
       .file-input {
@@ -417,18 +461,18 @@ export const sightAssistHtml = `<!doctype html>
         display: grid;
         gap: 8px;
         padding: 18px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
         cursor: pointer;
       }
 
       .file-trigger:hover,
       .file-trigger.is-active {
-        border-color: var(--line-strong);
+        border-color: rgba(142, 227, 205, 0.18);
+        background: rgba(142, 227, 205, 0.08);
         transform: translateY(-1px);
-        background: rgba(143, 226, 206, 0.06);
       }
 
       .file-title {
-        color: var(--text);
         font-size: 15px;
         font-weight: 700;
       }
@@ -438,24 +482,24 @@ export const sightAssistHtml = `<!doctype html>
         font-size: 13px;
       }
 
-      .action-row {
-        display: flex;
-        align-items: center;
-        gap: 14px;
+      .action-area {
+        display: grid;
+        gap: 12px;
         margin-top: 4px;
       }
 
       .analyze-button {
-        min-width: 168px;
-        min-height: 54px;
-        padding: 0 22px;
-        border: 0;
+        min-height: 56px;
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.18);
         border-radius: 999px;
-        color: #062126;
-        font-size: 15px;
+        color: #082026;
+        font-size: 16px;
         font-weight: 800;
         background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
-        box-shadow: 0 18px 42px rgba(102, 213, 189, 0.24);
+        box-shadow:
+          0 18px 40px rgba(99, 215, 187, 0.24),
+          inset 0 1px 0 rgba(255, 255, 255, 0.48);
         cursor: pointer;
         transition:
           transform 180ms ease,
@@ -465,7 +509,9 @@ export const sightAssistHtml = `<!doctype html>
 
       .analyze-button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 22px 48px rgba(102, 213, 189, 0.28);
+        box-shadow:
+          0 22px 44px rgba(99, 215, 187, 0.28),
+          inset 0 1px 0 rgba(255, 255, 255, 0.5);
       }
 
       .analyze-button:active {
@@ -473,36 +519,35 @@ export const sightAssistHtml = `<!doctype html>
       }
 
       .analyze-button:disabled {
-        opacity: 0.66;
+        opacity: 0.72;
         cursor: wait;
       }
 
-      .micro-copy {
+      .action-note {
         color: var(--muted);
         font-size: 13px;
         line-height: 1.55;
       }
 
-      .stage-card {
-        padding: 22px;
+      .canvas {
+        position: relative;
+        padding: 24px;
+        background: var(--surface-panel);
       }
 
-      .stage-head {
+      .canvas-top {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
         gap: 18px;
-        margin-bottom: 18px;
+        margin-bottom: 20px;
       }
 
-      .stage-head h2 {
-        font-size: clamp(1.7rem, 2vw, 2.15rem);
-      }
-
-      .stage-head p {
-        margin-top: 8px;
-        color: var(--muted);
-        line-height: 1.65;
+      .canvas-copy p {
+        margin: 10px 0 0;
+        max-width: 52ch;
+        color: var(--muted-strong);
+        line-height: 1.62;
       }
 
       .status-pill {
@@ -511,10 +556,10 @@ export const sightAssistHtml = `<!doctype html>
         gap: 10px;
         min-height: 42px;
         padding: 0 14px;
-        border: 1px solid var(--line);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 999px;
-        color: var(--soft);
         background: rgba(255, 255, 255, 0.03);
+        color: var(--muted-strong);
         font-size: 13px;
         white-space: nowrap;
       }
@@ -524,7 +569,7 @@ export const sightAssistHtml = `<!doctype html>
         height: 9px;
         border-radius: 999px;
         background: var(--accent);
-        box-shadow: 0 0 0 6px rgba(143, 226, 206, 0.08);
+        box-shadow: 0 0 0 6px rgba(142, 227, 205, 0.08);
       }
 
       .status-pill.is-working .status-dot {
@@ -533,45 +578,47 @@ export const sightAssistHtml = `<!doctype html>
 
       .status-pill.is-error .status-dot {
         background: var(--danger);
-        box-shadow: 0 0 0 6px rgba(255, 143, 122, 0.08);
+        box-shadow: 0 0 0 6px rgba(255, 145, 126, 0.08);
       }
 
-      .stage-grid {
+      .canvas-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.06fr) minmax(300px, 0.94fr);
-        gap: 16px;
+        grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+        gap: 18px;
       }
 
       .preview-card,
       .result-card {
-        min-height: 100%;
-        padding: 18px;
-        border: 1px solid var(--line);
-        border-radius: var(--radius-lg);
-        background: linear-gradient(180deg, rgba(12, 37, 43, 0.9), rgba(8, 24, 29, 0.92));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        box-shadow: var(--shadow-md);
       }
 
       .preview-card {
-        display: grid;
-        grid-template-rows: auto minmax(360px, 1fr);
-        gap: 14px;
+        padding: 18px;
+        background: var(--surface-plain);
       }
 
-      .card-kicker {
+      .preview-head,
+      .result-head {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        color: var(--soft);
+        align-items: baseline;
+        gap: 10px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
 
-      .card-kicker strong {
+      .preview-head strong,
+      .result-head strong {
         font-size: 16px;
+        letter-spacing: -0.02em;
       }
 
-      .card-kicker span {
+      .preview-head span,
+      .result-head span {
         color: var(--muted);
         font-size: 13px;
+        line-height: 1.5;
       }
 
       .preview-box {
@@ -579,13 +626,13 @@ export const sightAssistHtml = `<!doctype html>
         display: grid;
         place-items: center;
         overflow: hidden;
-        min-height: 360px;
-        border: 1px solid rgba(143, 226, 206, 0.12);
-        border-radius: 18px;
+        min-height: 420px;
+        margin-top: 16px;
+        border: 1px solid rgba(142, 227, 205, 0.18);
+        border-radius: 20px;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.01)),
-          radial-gradient(circle at 50% 0%, rgba(143, 226, 206, 0.12), transparent 35%),
-          #0c252b;
+          radial-gradient(circle at top, rgba(142, 227, 205, 0.14), transparent 28%),
+          linear-gradient(180deg, #163439 0%, #11282d 100%);
       }
 
       .preview-box.is-loading::after {
@@ -595,7 +642,7 @@ export const sightAssistHtml = `<!doctype html>
         background: linear-gradient(
           90deg,
           transparent 0%,
-          rgba(255, 255, 255, 0.05) 50%,
+          rgba(255, 255, 255, 0.06) 50%,
           transparent 100%
         );
         animation: shimmer 1.4s linear infinite;
@@ -618,78 +665,98 @@ export const sightAssistHtml = `<!doctype html>
         text-align: center;
       }
 
-      .placeholder-frame {
-        width: 82px;
-        height: 82px;
-        border: 1px solid rgba(143, 226, 206, 0.22);
+      .placeholder-icon {
+        width: 86px;
+        height: 86px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 24px;
         background: rgba(255, 255, 255, 0.03);
       }
 
       .placeholder strong {
-        font-size: 1.05rem;
+        font-size: 1.1rem;
       }
 
       .placeholder p {
-        color: var(--muted);
+        color: var(--muted-strong);
         line-height: 1.65;
       }
 
       .result-card {
         display: grid;
-        gap: 18px;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        padding: 18px;
+        background: linear-gradient(180deg, rgba(15, 41, 37, 0.96) 0%, rgba(8, 22, 20, 0.98) 100%);
       }
 
-      .result-card h3 {
-        font-size: 1.35rem;
-      }
-
-      .result-summary {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.7;
-      }
-
-      .analysis-output {
-        min-height: 176px;
-        padding: 20px;
-        border: 1px solid rgba(143, 226, 206, 0.12);
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.025);
-        color: var(--soft);
+      .analysis-sheet {
+        min-height: 258px;
+        width: 100%;
+        margin-top: 16px;
+        padding: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        background: var(--paper);
+        color: #183430;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.65),
+          0 16px 28px rgba(0, 0, 0, 0.14);
         font-size: 16px;
-        line-height: 1.75;
+        line-height: 1.78;
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
 
-      .analysis-output.is-empty {
+      .analysis-sheet.is-empty {
         display: grid;
         place-items: center;
         text-align: center;
-        color: var(--muted);
+        color: #5a7a72;
       }
 
       .raw-toggle {
-        border-top: 1px solid var(--line);
+        margin-top: 18px;
         padding-top: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       summary {
         cursor: pointer;
-        color: var(--soft);
+        list-style: none;
+        color: var(--ink);
         font-size: 14px;
         font-weight: 700;
       }
 
+      summary::-webkit-details-marker {
+        display: none;
+      }
+
+      summary::after {
+        content: "View";
+        margin-left: 10px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
       pre {
         margin: 14px 0 0;
+        width: 100%;
         padding: 16px;
         overflow: auto;
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 16px;
-        color: #d8f7ee;
+        background: #061217;
+        color: #d6f4ea;
         font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
         font-size: 12px;
         line-height: 1.6;
-        background: #07161a;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
 
       @keyframes pulse {
@@ -699,7 +766,7 @@ export const sightAssistHtml = `<!doctype html>
         }
 
         50% {
-          opacity: 0.56;
+          opacity: 0.55;
           transform: scale(0.82);
         }
       }
@@ -714,69 +781,51 @@ export const sightAssistHtml = `<!doctype html>
         }
       }
 
-      @media (max-width: 1100px) {
+      @media (max-width: 1120px) {
         .hero,
-        .workspace,
-        .stage-grid,
-        .metrics,
-        .sample-figure {
+        .workbench,
+        .canvas-grid {
           grid-template-columns: 1fr;
         }
 
-        .control-card {
+        .sidebar {
           position: static;
-        }
-
-        h1 {
-          max-width: 10ch;
         }
       }
 
-      @media (max-width: 720px) {
+      @media (max-width: 760px) {
         .shell {
           width: min(100vw - 20px, 1320px);
           padding: 18px 0 28px;
         }
 
         .topbar,
-        .stage-head,
-        .hero-actions,
-        .card-kicker {
+        .canvas-top {
           flex-direction: column;
           align-items: flex-start;
         }
 
-        .hero-copy,
-        .hero-stage,
-        .control-card,
-        .stage-card,
-        .metric {
-          border-radius: 22px;
+        .topnote {
+          text-align: left;
         }
 
-        .hero-copy,
-        .hero-stage,
-        .control-card,
-        .stage-card {
-          padding-left: 18px;
-          padding-right: 18px;
+        .hero,
+        .capsules {
+          gap: 14px;
         }
 
-        h1 {
-          font-size: clamp(2.5rem, 13vw, 4.1rem);
+        .intro-panel,
+        .flow-panel,
+        .canvas {
+          border-radius: 24px;
         }
 
         .preview-box {
-          min-height: 280px;
+          min-height: 320px;
         }
 
-        .action-row {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        .analyze-button {
-          width: 100%;
+        h1 {
+          font-size: clamp(2rem, 10vw, 3rem);
         }
       }
     </style>
@@ -784,114 +833,129 @@ export const sightAssistHtml = `<!doctype html>
   <body>
     <main class="shell">
       <header class="topbar">
-        <div class="brand">
-          <span class="brand-mark"></span>
+        <div class="brandline">
+          <span class="branddot"></span>
           <span>Sight Assist · Vision endpoint starter</span>
         </div>
-        <div class="topbar-note">Readable scene notes for demos, assistive workflows, and rapid image QA.</div>
+        <div class="topnote">Fast image inspection with readable scene notes.</div>
       </header>
 
       <section class="hero">
-        <div class="hero-copy">
+        <article class="intro-panel">
           <span class="eyebrow">Multimodal image reading</span>
           <h1>Readable scene notes for any uploaded image.</h1>
           <p class="lede">
-            A cleaner vision surface for prototypes that need a quick preview, a grounded analysis,
-            and a result panel that feels usable instead of improvised.
+            Upload an image, inspect it, and get a clear response without UI noise.
           </p>
 
-          <div class="hero-actions">
-            <div class="hero-chip">
-              <span class="hero-chip-dot"></span>
-              <span>Base64 upload · edge response</span>
-            </div>
-            <div class="hero-meta">Built for fast inspection, accessible descriptions, and small demo flows.</div>
+          <div class="signal-row">
+            <div class="signal-chip">Base64 upload · edge response</div>
+            <div class="signal-copy">Made for quick preview and short, usable output.</div>
           </div>
-        </div>
+        </article>
 
-        <div class="hero-stage">
-          <div class="stage-window">
-            <div class="window-bar">
-              <div class="window-dots">
+        <article class="flow-panel">
+          <div class="flow-shell">
+            <div class="flow-header">
+              <div class="flow-dots">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
-              <div class="window-label">Example reading surface</div>
+              <div class="flow-label">Example reading surface</div>
             </div>
 
-            <div class="sample-figure">
-              <div class="sample-image">
-                <img
-                  src="https://images.unsplash.com/photo-1494256997604-768d1f608cac?auto=format&fit=crop&w=480&q=80"
-                  alt="Sample camera and desk setup"
-                />
+            <div class="flow-steps">
+              <div class="step-card is-primary">
+                <div class="step-index">01</div>
+                <div class="step-copy">
+                  <strong>Upload</strong>
+                  <p>Pick one image and keep the prompt direct.</p>
+                </div>
               </div>
-              <div class="sample-copy">
-                <h2>What the result should feel like</h2>
-                <p>
-                  Short, useful, and easy to scan. The interface should make preview, status, and
-                  output read like one workflow.
-                </p>
-                <ul class="sample-points">
-                  <li>Preview stays prominent while the request is running.</li>
-                  <li>Analysis reads like product copy, not raw debug text.</li>
-                  <li>Errors stay visible in context instead of breaking the page.</li>
-                </ul>
+
+              <div class="step-card">
+                <div class="step-index">02</div>
+                <div class="step-copy">
+                  <strong>Inspect</strong>
+                  <p>The image stays visible while the request runs.</p>
+                </div>
+              </div>
+
+              <div class="step-card">
+                <div class="step-index">03</div>
+                <div class="step-copy">
+                  <strong>Read</strong>
+                  <p>The main response stays readable. Raw payload stays secondary.</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section class="metrics">
-        <article class="metric">
-          <span class="metric-label">Focused hierarchy</span>
-          <div class="metric-copy">Compact framing at the top, controls on the left, preview and result on the right.</div>
-        </article>
-        <article class="metric">
-          <span class="metric-label">Responsive workflow</span>
-          <div class="metric-copy">The layout collapses cleanly on mobile without leaving the preview or controls stranded.</div>
-        </article>
-        <article class="metric">
-          <span class="metric-label">Honest states</span>
-          <div class="metric-copy">Loading, success, and failure all have visible, contextual feedback instead of silent stalls.</div>
         </article>
       </section>
 
-      <section class="workspace">
-        <aside class="control-card">
-          <h2>Inspect an image</h2>
-          <p>Set the prompt, choose a file, and run one clean pass through the Worker.</p>
+      <section class="capsules">
+        <div class="capsule">
+          <strong>Focused hierarchy</strong>
+          <span>Clear zones for intro, controls, preview, and output.</span>
+        </div>
+        <div class="capsule">
+          <strong>Responsive workflow</strong>
+          <span>The flow stays intact on smaller screens.</span>
+        </div>
+        <div class="capsule">
+          <strong>Honest states</strong>
+          <span>Loading, success, and failure stay visible.</span>
+        </div>
+      </section>
 
-          <form id="vision-form" class="control-form">
-            <div class="input-block">
-              <label class="input-label" for="prompt">Prompt</label>
-              <textarea id="prompt">Describe the image clearly, identify notable objects, and mention anything useful for accessibility.</textarea>
-              <div class="input-help">Keep the instruction specific if you want product, document, or scene-focused output.</div>
-            </div>
+      <section class="workbench">
+        <aside class="sidebar">
+          <div class="sidebar-inner">
+            <h2>Inspect an image</h2>
+            <p>Set the prompt, choose a file, and run one pass.</p>
 
-            <div class="input-block">
-              <span class="input-label">Image file</span>
-              <label class="file-trigger" id="file-trigger" for="image">
-                <span class="file-title" id="file-title">Choose an image to preview</span>
-                <span class="file-meta" id="file-meta">PNG, JPG, WEBP and similar formats work best.</span>
-              </label>
-              <input class="file-input" id="image" accept="image/*" type="file" />
-            </div>
+            <div class="divider"></div>
 
-            <div class="action-row">
-              <button class="analyze-button" id="analyze-button" type="button">Inspect image</button>
-              <div class="micro-copy">The request is sent from this page to the Worker, then to Workers AI.</div>
-            </div>
-          </form>
+            <form id="vision-form" class="form">
+              <div class="field">
+                <div class="field-shell">
+                  <div class="field-head">
+                    <label class="field-label" for="prompt">Prompt</label>
+                    <span class="field-tag">Required</span>
+                  </div>
+                  <textarea id="prompt" placeholder="Describe the image clearly and mention what matters most.">Describe the image clearly, identify notable objects, and mention anything useful for accessibility.</textarea>
+                  <div class="field-help">Be specific if you want product, document, or scene-focused output.</div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-shell">
+                  <div class="field-head">
+                    <span class="field-label">Image file</span>
+                    <span class="field-tag">Required</span>
+                  </div>
+                  <label class="file-trigger" id="file-trigger" for="image">
+                    <span class="file-title" id="file-title">Choose an image to preview</span>
+                    <span class="file-meta" id="file-meta">PNG, JPG, WEBP and similar formats work best.</span>
+                  </label>
+                </div>
+                <input class="file-input" id="image" accept="image/*" type="file" />
+              </div>
+
+              <div class="action-area">
+                <button class="analyze-button" id="analyze-button" type="button">Inspect image</button>
+                <div class="action-note">The request runs through the Worker and then Workers AI.</div>
+              </div>
+            </form>
+          </div>
         </aside>
 
-        <section class="stage-card">
-          <div class="stage-head">
-            <div>
-              <h2>Preview and output</h2>
-              <p id="status">Choose an image to populate the preview surface and the latest analysis panel.</p>
+        <section class="canvas">
+          <div class="canvas-top">
+            <div class="canvas-copy">
+              <h2 class="canvas-title">Preview and output</h2>
+              <p id="status">Choose an image to populate the preview and output panels.</p>
             </div>
             <div class="status-pill" id="status-pill">
               <span class="status-dot"></span>
@@ -899,31 +963,29 @@ export const sightAssistHtml = `<!doctype html>
             </div>
           </div>
 
-          <div class="stage-grid">
+          <div class="canvas-grid">
             <article class="preview-card">
-              <div class="card-kicker">
-                <div>
-                  <strong>Live preview</strong>
-                  <span>The selected image stays visible while analysis is running.</span>
-                </div>
+              <div class="preview-head">
+                <strong>Live preview</strong>
+                <span>The image stays visible while analysis runs.</span>
               </div>
 
               <div class="preview-box" id="preview-box">
                 <div class="placeholder" id="preview-placeholder">
-                  <div class="placeholder-frame"></div>
+                  <div class="placeholder-icon"></div>
                   <strong>No image loaded yet</strong>
-                  <p>Pick a file from the left panel to populate this canvas before you run inspection.</p>
+                  <p>Pick a file from the left panel before running inspection.</p>
                 </div>
               </div>
             </article>
 
             <article class="result-card">
-              <div>
-                <h3>Latest analysis</h3>
-                <p class="result-summary">Readable output should land here in plain language, with raw response details available below only when needed.</p>
+              <div class="result-head">
+                <strong>Latest analysis</strong>
+                <span>Readable output first. Raw detail second.</span>
               </div>
 
-              <div class="analysis-output is-empty" id="analysis-output">
+              <div class="analysis-sheet is-empty" id="analysis-output">
                 Waiting for your first image analysis.
               </div>
 
@@ -953,6 +1015,7 @@ export const sightAssistHtml = `<!doctype html>
       const fileMeta = document.getElementById("file-meta");
 
       let activeUrl = null;
+      const defaultButtonLabel = "Inspect image";
 
       function readFileAsBase64(file) {
         return new Promise((resolve, reject) => {
@@ -1007,6 +1070,7 @@ export const sightAssistHtml = `<!doctype html>
 
       function setLoadingState(isLoading) {
         analyzeButton.disabled = isLoading;
+        analyzeButton.textContent = isLoading ? "Inspecting..." : defaultButtonLabel;
         previewBox.classList.toggle("is-loading", isLoading);
       }
 
@@ -1022,6 +1086,7 @@ export const sightAssistHtml = `<!doctype html>
         const file = imageInput.files[0];
 
         if (!file) {
+          fileTrigger.classList.remove("is-active");
           fileTitle.textContent = "Choose an image to preview";
           fileMeta.textContent = "PNG, JPG, WEBP and similar formats work best.";
           resetPreview();
@@ -1040,8 +1105,17 @@ export const sightAssistHtml = `<!doctype html>
           event.preventDefault();
         }
 
+        const promptField = document.getElementById("prompt");
+        const promptValue = promptField.value.trim();
         const file = imageInput.files[0];
+        if (!promptValue) {
+          alert("Enter a prompt before running inspection.");
+          promptField.focus();
+          return;
+        }
+
         if (!file) {
+          alert("Choose an image before running inspection.");
           setStatus("error", "Missing file", "Choose an image before submitting.");
           setAnalysisContent("Choose an image before running inspection.", true);
           return;
@@ -1055,7 +1129,7 @@ export const sightAssistHtml = `<!doctype html>
         try {
           const payload = {
             base64Image: await readFileAsBase64(file),
-            prompt: document.getElementById("prompt").value,
+            prompt: promptValue,
           };
 
           const controller = new AbortController();

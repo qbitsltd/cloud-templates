@@ -14,3 +14,7 @@ NOTES_KV_NAMESPACE = "course-notes"
 [[kv_namespaces]]
 binding = "NOTES"
 id = "replace-with-your-kv-namespace-id"
+
+[[kv_namespaces]]
+binding = "RUNS"
+id = "replace-with-your-run-log-kv-id"

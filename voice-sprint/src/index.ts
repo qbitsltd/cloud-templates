@@ -56,6 +56,7 @@ type Env = {
   OPERATION_TOKEN: string;
   QBITS_SKIP_VALIDATION?: string;
   QBITS_VALIDATE_URL: string;
+  RUNS: KVNamespace;
 };
 
 type SynthesisRequest = {
@@ -68,6 +69,25 @@ const app = new Hono<{ Bindings: Env }>();
 
 function shouldSkipValidation(env: Env) {
   return env.QBITS_SKIP_VALIDATION === "true";
+}
+
+function createRunId() {
+  return `voice-sprint:${Date.now()}:${crypto.randomUUID()}`;
+}
+
+async function persistRun(env: Env, runId: string, payload: Record<string, unknown>) {
+  try {
+    await env.RUNS.put(
+      runId,
+      JSON.stringify({
+        runId,
+        savedAt: new Date().toISOString(),
+        ...payload,
+      }),
+    );
+  } catch (error) {
+    console.error("Failed to persist VoiceSprint run", error);
+  }
 }
 
 async function validateQbits(c: any) {
@@ -144,31 +164,77 @@ app.post("/synthesize", async (c) => {
   if ("error" in normalized) {
     return c.json(normalized, 400);
   }
+  const runId = createRunId();
 
-  const audioBase64 =
-    normalized.locale === "es"
-      ? await c.env.AI.run("@cf/deepgram/aura-2-es", {
-          text: normalized.text,
-          speaker: normalized.speaker,
-          encoding: "mp3",
-        })
-      : await c.env.AI.run("@cf/deepgram/aura-2-en", {
-          text: normalized.text,
-          speaker: normalized.speaker,
-          encoding: "mp3",
-        });
-  const audioBytes = decodeBase64Audio(audioBase64);
-  const responseHeaders = new Headers();
-  responseHeaders.set("content-type", "audio/mpeg");
-  responseHeaders.set("x-voice-locale", normalized.locale);
-  responseHeaders.set("x-voice-speaker", normalized.speaker);
-  responseHeaders.set("x-voice-model", normalized.model);
-  responseHeaders.set("x-audio-format", "mp3");
+  try {
+    const audioBase64 =
+      normalized.locale === "es"
+        ? await c.env.AI.run("@cf/deepgram/aura-2-es", {
+            text: normalized.text,
+            speaker: normalized.speaker,
+            encoding: "mp3",
+          })
+        : await c.env.AI.run("@cf/deepgram/aura-2-en", {
+            text: normalized.text,
+            speaker: normalized.speaker,
+            encoding: "mp3",
+          });
+    const audioBytes = decodeBase64Audio(audioBase64);
 
-  return new Response(audioBytes, {
-    status: 200,
-    headers: responseHeaders,
-  });
+    await persistRun(c.env, runId, {
+      template: "voice-sprint",
+      success: true,
+      request: {
+        text: normalized.text,
+        locale: normalized.locale,
+        speaker: normalized.speaker,
+      },
+      response: {
+        format: "mp3",
+        bytes: audioBytes.byteLength,
+        model: normalized.model,
+      },
+    });
+
+    const responseHeaders = new Headers();
+    responseHeaders.set("content-type", "audio/mpeg");
+    responseHeaders.set("x-voice-locale", normalized.locale);
+    responseHeaders.set("x-voice-speaker", normalized.speaker);
+    responseHeaders.set("x-voice-model", normalized.model);
+    responseHeaders.set("x-audio-format", "mp3");
+    responseHeaders.set("x-run-id", runId);
+
+    return new Response(audioBytes, {
+      status: 200,
+      headers: responseHeaders,
+    });
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+
+    await persistRun(c.env, runId, {
+      template: "voice-sprint",
+      success: false,
+      request: {
+        text: normalized.text,
+        locale: normalized.locale,
+        speaker: normalized.speaker,
+      },
+      response: {
+        error: "Synthesis failed.",
+        details,
+        model: normalized.model,
+      },
+    });
+
+    return c.json(
+      {
+        error: "Synthesis failed.",
+        details,
+        runId,
+      },
+      502,
+    );
+  }
 });
 
 export default app;

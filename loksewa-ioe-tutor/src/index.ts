@@ -8,6 +8,7 @@ type Env = {
   OPERATION_TOKEN: string;
   QBITS_SKIP_VALIDATION?: string;
   QBITS_VALIDATE_URL: string;
+  RUNS: KVNamespace;
 };
 
 const app = new Hono<{ Bindings: Env }>();
@@ -52,6 +53,25 @@ function extractStructuredResult(result: unknown) {
 
 function shouldSkipValidation(env: Env) {
   return env.QBITS_SKIP_VALIDATION === "true";
+}
+
+function createRunId() {
+  return `loksewa-ioe-tutor:${Date.now()}:${crypto.randomUUID()}`;
+}
+
+async function persistRun(env: Env, runId: string, payload: Record<string, unknown>) {
+  try {
+    await env.RUNS.put(
+      runId,
+      JSON.stringify({
+        runId,
+        savedAt: new Date().toISOString(),
+        ...payload,
+      }),
+    );
+  } catch (error) {
+    console.error("Failed to persist Loksewa / IOE Tutor run", error);
+  }
 }
 
 async function validateQbits(c: any) {
@@ -105,12 +125,44 @@ app.post("/evaluate", async (c) => {
     },
   });
   const structured = extractStructuredResult(aiResponse);
+  const runId = createRunId();
 
   if (!structured) {
-    return c.json({ error: "Workers AI did not return valid evaluation JSON." }, 502);
+    await persistRun(c.env, runId, {
+      template: "loksewa-ioe-tutor",
+      success: false,
+      request: {
+        question,
+        answer,
+      },
+      response: {
+        error: "Workers AI did not return valid evaluation JSON.",
+      },
+    });
+
+    return c.json(
+      {
+        error: "Workers AI did not return valid evaluation JSON.",
+        runId,
+      },
+      502,
+    );
   }
 
-  return c.json(structured);
+  await persistRun(c.env, runId, {
+    template: "loksewa-ioe-tutor",
+    success: true,
+    request: {
+      question,
+      answer,
+    },
+    response: structured,
+  });
+
+  return c.json({
+    ...structured,
+    runId,
+  });
 });
 
 export default app;

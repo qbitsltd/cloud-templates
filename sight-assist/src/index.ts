@@ -9,6 +9,7 @@ type Env = {
   QBITS_SKIP_VALIDATION?: string;
   QBITS_VALIDATE_URL: string;
   MAX_IMAGE_BYTES: string;
+  RUNS: KVNamespace;
 };
 
 const app = new Hono<{ Bindings: Env }>();
@@ -64,6 +65,25 @@ function shouldSkipValidation(env: Env) {
   return env.QBITS_SKIP_VALIDATION === "true";
 }
 
+function createRunId() {
+  return `sight-assist:${Date.now()}:${crypto.randomUUID()}`;
+}
+
+async function persistRun(env: Env, runId: string, payload: Record<string, unknown>) {
+  try {
+    await env.RUNS.put(
+      runId,
+      JSON.stringify({
+        runId,
+        savedAt: new Date().toISOString(),
+        ...payload,
+      }),
+    );
+  } catch (error) {
+    console.error("Failed to persist Sight Assist run", error);
+  }
+}
+
 async function validateQbits(c: any) {
   if (shouldSkipValidation(c.env)) {
     return null;
@@ -102,25 +122,57 @@ app.post("/analyze-image", async (c) => {
     return c.json({ error: "Image is too large." }, 413);
   }
 
+  const runId = createRunId();
+  const effectivePrompt =
+    prompt ??
+    "Describe the image clearly, identify notable objects, and mention anything useful for accessibility.";
+
   try {
     const aiResponse = await withTimeout(
       c.env.AI.run("@cf/llava-hf/llava-1.5-7b-hf", {
         image: Array.from(Uint8Array.from(atob(base64Image), (char) => char.charCodeAt(0))),
-        prompt:
-          prompt ??
-          "Describe the image clearly, identify notable objects, and mention anything useful for accessibility.",
+        prompt: effectivePrompt,
       }),
       30000,
     );
+    const analysis = extractText(aiResponse) ?? aiResponse.description ?? "No analysis returned.";
+
+    await persistRun(c.env, runId, {
+      template: "sight-assist",
+      success: true,
+      request: {
+        prompt: effectivePrompt,
+        imageBytes,
+      },
+      response: {
+        analysis,
+      },
+    });
 
     return c.json({
-      analysis: extractText(aiResponse) ?? aiResponse.description ?? "No analysis returned.",
+      analysis,
+      runId,
     });
   } catch (error) {
+    const details = formatErrorMessage(error);
+    await persistRun(c.env, runId, {
+      template: "sight-assist",
+      success: false,
+      request: {
+        prompt: effectivePrompt,
+        imageBytes,
+      },
+      response: {
+        error: "Image analysis failed.",
+        details,
+      },
+    });
+
     return c.json(
       {
         error: "Image analysis failed.",
-        details: formatErrorMessage(error),
+        details,
+        runId,
       },
       502,
     );

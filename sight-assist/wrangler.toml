@@ -10,3 +10,7 @@ QBITS_VALIDATE_URL = "https://ai.qbits.ltd/api/validate"
 INSTALLATION_TOKEN = "__INSTALLATION_TOKEN__"
 OPERATION_TOKEN = "__OPERATION_TOKEN__"
 MAX_IMAGE_BYTES = "4000000"
+
+[[kv_namespaces]]
+binding = "RUNS"
+id = "replace-with-your-run-log-kv-id"

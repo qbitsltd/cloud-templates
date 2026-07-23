@@ -17,7 +17,8 @@ Deploy with:
 Before deploy:
 
 1. Replace `__INSTALLATION_TOKEN__` and `__OPERATION_TOKEN__` in `wrangler.toml`
-2. Make sure your Cloudflare account has Workers AI enabled
-3. Deploy the Worker with your usual Wrangler authentication
+2. Create a Cloudflare KV namespace for run history and replace `replace-with-your-run-log-kv-id`
+3. Make sure your Cloudflare account has Workers AI enabled
+4. Deploy the Worker with your usual Wrangler authentication
 
 This starter uses Cloudflare's AI binding and routes requests to the native Deepgram Aura 2 models on Workers AI.

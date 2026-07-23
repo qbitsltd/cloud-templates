@@ -9,3 +9,7 @@ binding = "AI"
 QBITS_VALIDATE_URL = "https://ai.qbits.ltd/api/validate"
 INSTALLATION_TOKEN = "__INSTALLATION_TOKEN__"
 OPERATION_TOKEN = "__OPERATION_TOKEN__"
+
+[[kv_namespaces]]
+binding = "RUNS"
+id = "replace-with-your-run-log-kv-id"
