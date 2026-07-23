@@ -226,23 +226,23 @@ export const voiceSprintHtml = `<!doctype html>
 
         <div class="highlights">
           <div class="highlight">
-            <strong>Multilingual by default</strong>
-            <span>Generate audio across 31 languages, or use <code>na</code> when the text language is mixed or unknown.</span>
+            <strong>Cloudflare-native speech</strong>
+            <span>No separate speech server, proxy tier, or extra upstream credentials required.</span>
           </div>
           <div class="highlight">
-            <strong>Flexible voice settings</strong>
-            <span>Adjust voice, pace, and quality for explainers, product demos, or narrated reading.</span>
+            <strong>English and Spanish voices</strong>
+            <span>Switch between two native Workers AI voice catalogs with speaker-safe presets.</span>
           </div>
           <div class="highlight">
             <strong>Private and controlled</strong>
-            <span>Every request is validated before it reaches your speech engine.</span>
+            <span>Every request is validated before it reaches Workers AI.</span>
           </div>
         </div>
 
         <div class="layout">
           <div class="panel">
             <h2>Create a voice preview</h2>
-            <p>Paste your text, tune the voice, and generate a playable draft instantly.</p>
+            <p>Paste your text, choose a supported voice, and generate a playable draft instantly.</p>
             <form id="tts-form">
               <label>
                 Script
@@ -251,34 +251,21 @@ export const voiceSprintHtml = `<!doctype html>
 
               <div class="grid">
                 <label>
-                  Voice style
-                  <select id="voice">
-                    <option>M1</option>
-                    <option>M2</option>
-                    <option>M3</option>
-                    <option>M4</option>
-                    <option>M5</option>
-                    <option>F1</option>
-                    <option>F2</option>
-                    <option>F3</option>
-                    <option>F4</option>
-                    <option>F5</option>
+                  Narration language
+                  <select id="locale">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
                   </select>
                 </label>
 
                 <label>
-                  Language code
-                  <input id="lang" value="en" placeholder="en, ko, es, na" />
+                  Speaker
+                  <select id="speaker"></select>
                 </label>
 
                 <label>
-                  Speech speed
-                  <input id="speed" type="number" min="0.7" max="2" step="0.05" value="1.05" />
-                </label>
-
-                <label>
-                  Audio quality
-                  <input id="steps" type="number" min="5" max="12" step="1" value="8" />
+                  Output format
+                  <input value="MP3 (native Workers AI output)" disabled />
                 </label>
               </div>
 
@@ -317,8 +304,43 @@ export const voiceSprintHtml = `<!doctype html>
       const format = document.getElementById("format");
       const duration = document.getElementById("duration");
       const result = document.getElementById("result");
+      const locale = document.getElementById("locale");
+      const speaker = document.getElementById("speaker");
+
+      const voiceCatalog = {
+        en: ["luna", "athena", "hera", "orion", "apollo", "atlas", "iris", "juno"],
+        es: ["aquila", "celeste", "diana", "estrella", "javier", "selena", "alvaro", "sirio"],
+      };
 
       let activeUrl = null;
+
+      function syncSpeakerOptions() {
+        const selectedLocale = locale.value;
+        const speakers = voiceCatalog[selectedLocale] || voiceCatalog.en;
+        const previousSpeaker = speaker.value;
+
+        speaker.innerHTML = speakers
+          .map((voiceName) => "<option value=\\"" + voiceName + "\\">" + voiceName + "</option>")
+          .join("");
+
+        if (speakers.includes(previousSpeaker)) {
+          speaker.value = previousSpeaker;
+        }
+      }
+
+      function waitForMetadata() {
+        return new Promise((resolve) => {
+          if (audio.readyState >= 1) {
+            resolve();
+            return;
+          }
+
+          audio.onloadedmetadata = () => resolve();
+        });
+      }
+
+      syncSpeakerOptions();
+      locale.addEventListener("change", syncSpeakerOptions);
 
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -334,10 +356,8 @@ export const voiceSprintHtml = `<!doctype html>
 
         const payload = {
           text: document.getElementById("text").value,
-          voice: document.getElementById("voice").value,
-          lang: document.getElementById("lang").value || "na",
-          speed: Number(document.getElementById("speed").value),
-          steps: Number(document.getElementById("steps").value),
+          locale: locale.value,
+          speaker: speaker.value,
         };
 
         const response = await fetch("/synthesize", {
@@ -360,24 +380,30 @@ export const voiceSprintHtml = `<!doctype html>
         activeUrl = URL.createObjectURL(blob);
         audio.src = activeUrl;
         audio.load();
+        await waitForMetadata();
 
-        const responseFormat = response.headers.get("content-type") || "audio/wav";
-        const audioDuration = response.headers.get("x-audio-duration") || "Not provided";
-        const sampleRate = response.headers.get("x-sample-rate") || "Unknown";
+        const responseFormat = response.headers.get("content-type") || "audio/mpeg";
+        const voiceModel = response.headers.get("x-voice-model") || "Unknown";
+        const voiceLocale = response.headers.get("x-voice-locale") || payload.locale;
+        const voiceSpeaker = response.headers.get("x-voice-speaker") || payload.speaker;
+        const audioFormat = response.headers.get("x-audio-format") || "mp3";
+        const audioDuration =
+          Number.isFinite(audio.duration) && audio.duration > 0
+            ? audio.duration.toFixed(1)
+            : "Unavailable";
 
         pill.textContent = "Ready";
         status.textContent = "Your preview is ready to play.";
-        format.textContent = responseFormat + " at " + sampleRate + " Hz";
-        duration.textContent = audioDuration + " seconds";
+        format.textContent = responseFormat + " via " + voiceModel;
+        duration.textContent = audioDuration === "Unavailable" ? audioDuration : audioDuration + " seconds";
         result.textContent = JSON.stringify({
           ok: true,
-          voice: payload.voice,
-          lang: payload.lang,
-          speed: payload.speed,
-          steps: payload.steps,
+          locale: voiceLocale,
+          speaker: voiceSpeaker,
+          model: voiceModel,
+          format: audioFormat,
           contentType: responseFormat,
           durationSeconds: audioDuration,
-          sampleRate,
         }, null, 2);
       });
     </script>

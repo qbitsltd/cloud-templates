@@ -1,13 +1,13 @@
 # 🔊 "VoiceSprint"
 
-A Qbits-guarded Cloudflare Worker starter for text-to-speech flows powered by a Supertonic server.
+A Qbits-guarded Cloudflare Worker starter for text-to-speech flows powered by Workers AI.
 
 This template gives you:
 
 - A polished browser UI for entering text and previewing generated speech
-- Voice, language, speed, and quality controls mapped to Supertonic
-- A Worker route that validates Qbits tokens before proxying synthesis requests
-- A simple deployment path when your Supertonic instance is reachable over HTTP
+- Native Cloudflare voice synthesis with no separate speech server
+- English and Spanish voice catalogs mapped to supported Workers AI speakers
+- A Worker route that validates Qbits tokens before running synthesis requests
 
 Deploy with:
 
@@ -17,6 +17,7 @@ Deploy with:
 Before deploy:
 
 1. Replace `__INSTALLATION_TOKEN__` and `__OPERATION_TOKEN__` in `wrangler.toml`
-2. Point `SUPERTONIC_BASE_URL` at your running Supertonic server
+2. Make sure your Cloudflare account has Workers AI enabled
+3. Deploy the Worker with your usual Wrangler authentication
 
-This starter targets Supertonic's native `POST /v1/tts` endpoint so it can pass `lang`, `voice`, `speed`, and `steps` directly.
+This starter uses Cloudflare's AI binding and routes requests to the native Deepgram Aura 2 models on Workers AI.

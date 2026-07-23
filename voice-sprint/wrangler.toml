@@ -2,8 +2,10 @@ name = "voice-sprint"
 main = "src/index.ts"
 compatibility_date = "2026-07-17"
 
+[ai]
+binding = "AI"
+
 [vars]
 QBITS_VALIDATE_URL = "https://ai.qbits.ltd/api/validate"
 INSTALLATION_TOKEN = "__INSTALLATION_TOKEN__"
 OPERATION_TOKEN = "__OPERATION_TOKEN__"
-SUPERTONIC_BASE_URL = "http://127.0.0.1:7788"

@@ -2,19 +2,65 @@ import { Hono } from "hono";
 
 import { voiceSprintHtml } from "./frontend";
 
+const voiceCatalog = {
+  en: {
+    model: "@cf/deepgram/aura-2-en",
+    defaultSpeaker: "luna",
+    speakers: [
+      "luna",
+      "athena",
+      "hera",
+      "orion",
+      "apollo",
+      "atlas",
+      "iris",
+      "juno",
+    ],
+  },
+  es: {
+    model: "@cf/deepgram/aura-2-es",
+    defaultSpeaker: "aquila",
+    speakers: [
+      "aquila",
+      "celeste",
+      "diana",
+      "estrella",
+      "javier",
+      "selena",
+      "alvaro",
+      "sirio",
+    ],
+  },
+} as const;
+
+type VoiceLocale = keyof typeof voiceCatalog;
+type EnSpeaker = NonNullable<Ai_Cf_Deepgram_Aura_2_En_Input["speaker"]>;
+type EsSpeaker = NonNullable<Ai_Cf_Deepgram_Aura_2_Es_Input["speaker"]>;
+type NormalizedRequest =
+  | {
+      text: string;
+      locale: "en";
+      speaker: EnSpeaker;
+      model: "@cf/deepgram/aura-2-en";
+    }
+  | {
+      text: string;
+      locale: "es";
+      speaker: EsSpeaker;
+      model: "@cf/deepgram/aura-2-es";
+    };
+
 type Env = {
+  AI: Ai;
   INSTALLATION_TOKEN: string;
   OPERATION_TOKEN: string;
   QBITS_VALIDATE_URL: string;
-  SUPERTONIC_BASE_URL: string;
 };
 
 type SynthesisRequest = {
   text: string;
-  voice?: string;
-  lang?: string;
-  speed?: number;
-  steps?: number;
+  speaker?: string;
+  locale?: VoiceLocale;
 };
 
 const app = new Hono<{ Bindings: Env }>();
@@ -43,17 +89,40 @@ function normalizeRequest(payload: SynthesisRequest) {
     return { error: "Text is required." };
   }
 
+  if (payload.locale === "es") {
+    const speaker = voiceCatalog.es.speakers.some((candidate) => candidate === payload.speaker)
+      ? (payload.speaker as EsSpeaker)
+      : voiceCatalog.es.defaultSpeaker;
+
+    return {
+      text,
+      locale: "es",
+      speaker,
+      model: voiceCatalog.es.model,
+    } satisfies NormalizedRequest;
+  }
+
+  const speaker = voiceCatalog.en.speakers.some((candidate) => candidate === payload.speaker)
+    ? (payload.speaker as EnSpeaker)
+    : voiceCatalog.en.defaultSpeaker;
+
   return {
     text,
-    voice: payload.voice?.trim() || "M1",
-    lang: payload.lang?.trim() || "na",
-    speed: payload.speed ?? 1.05,
-    steps: payload.steps ?? 8,
-  };
+    locale: "en",
+    speaker,
+    model: voiceCatalog.en.model,
+  } satisfies NormalizedRequest;
 }
 
-function buildUpstreamUrl(baseUrl: string) {
-  return new URL("/v1/tts", baseUrl).toString();
+function decodeBase64Audio(base64Audio: string) {
+  const binary = atob(base64Audio);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return bytes;
 }
 
 app.get("/", (c) => c.html(voiceSprintHtml));
@@ -67,48 +136,25 @@ app.post("/synthesize", async (c) => {
     return c.json(normalized, 400);
   }
 
-  const upstreamResponse = await fetch(buildUpstreamUrl(c.env.SUPERTONIC_BASE_URL), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      text: normalized.text,
-      voice: normalized.voice,
-      lang: normalized.lang,
-      steps: normalized.steps,
-      speed: normalized.speed,
-      response_format: "wav",
-    }),
-  });
-
-  if (!upstreamResponse.ok) {
-    const errorText = await upstreamResponse.text();
-
-    return new Response(
-      JSON.stringify({
-        error: "Supertonic synthesis failed.",
-        details: errorText || "Upstream server returned an error.",
-      }),
-      {
-        status: upstreamResponse.status,
-        headers: { "content-type": "application/json" },
-      },
-    );
-  }
-
-  const audioBytes = await upstreamResponse.arrayBuffer();
+  const audioBase64 =
+    normalized.locale === "es"
+      ? await c.env.AI.run("@cf/deepgram/aura-2-es", {
+          text: normalized.text,
+          speaker: normalized.speaker,
+          encoding: "mp3",
+        })
+      : await c.env.AI.run("@cf/deepgram/aura-2-en", {
+          text: normalized.text,
+          speaker: normalized.speaker,
+          encoding: "mp3",
+        });
+  const audioBytes = decodeBase64Audio(audioBase64);
   const responseHeaders = new Headers();
-  const contentType = upstreamResponse.headers.get("content-type") || "audio/wav";
-
-  responseHeaders.set("content-type", contentType);
-
-  for (const headerName of ["x-audio-duration", "x-sample-rate", "x-supertonic-version"]) {
-    const headerValue = upstreamResponse.headers.get(headerName);
-    if (headerValue) {
-      responseHeaders.set(headerName, headerValue);
-    }
-  }
+  responseHeaders.set("content-type", "audio/mpeg");
+  responseHeaders.set("x-voice-locale", normalized.locale);
+  responseHeaders.set("x-voice-speaker", normalized.speaker);
+  responseHeaders.set("x-voice-model", normalized.model);
+  responseHeaders.set("x-audio-format", "mp3");
 
   return new Response(audioBytes, {
     status: 200,

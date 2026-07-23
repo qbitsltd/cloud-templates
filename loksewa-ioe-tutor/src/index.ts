@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { evaluatorDeskHtml } from "./frontend";
 
 type Env = {
-  AI_API_KEY: string;
+  AI: Ai;
   INSTALLATION_TOKEN: string;
   OPERATION_TOKEN: string;
   QBITS_VALIDATE_URL: string;
@@ -11,7 +11,45 @@ type Env = {
 
 const app = new Hono<{ Bindings: Env }>();
 
-async function validateQbits(c: Parameters<typeof app.post>[1] extends never ? never : any) {
+const examScoreSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    score: { type: "number", minimum: 0, maximum: 10 },
+    strengths: {
+      type: "array",
+      items: { type: "string" },
+    },
+    improvements: {
+      type: "array",
+      items: { type: "string" },
+    },
+    verdict: { type: "string" },
+  },
+  required: ["score", "strengths", "improvements", "verdict"],
+} as const;
+
+function extractStructuredResult(result: unknown) {
+  if (!result || typeof result !== "object") {
+    return null;
+  }
+
+  if ("response" in result && typeof result.response === "object" && result.response !== null) {
+    return result.response;
+  }
+
+  if ("response" in result && typeof result.response === "string") {
+    try {
+      return JSON.parse(result.response);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+async function validateQbits(c: any) {
   const response = await fetch(c.env.QBITS_VALIDATE_URL, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -40,56 +78,30 @@ app.post("/evaluate", async (c) => {
     question: string;
   }>();
 
-  const aiResponse = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${c.env.AI_API_KEY}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4.1-mini",
-      text: {
-        format: {
-          type: "json_schema",
-          name: "exam_score",
-          strict: true,
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            properties: {
-              score: { type: "number", minimum: 0, maximum: 10 },
-              strengths: {
-                type: "array",
-                items: { type: "string" },
-              },
-              improvements: {
-                type: "array",
-                items: { type: "string" },
-              },
-              verdict: { type: "string" },
-            },
-            required: ["score", "strengths", "improvements", "verdict"],
-          },
-        },
+  const aiResponse = await c.env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", {
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are a strict Nepali technical exam evaluator. Score from 0 to 10 only. Return valid JSON only.",
       },
-      input: [
-        {
-          role: "system",
-          content:
-            "You are a strict Nepali technical exam evaluator. Score from 0 to 10 only. Return valid JSON only.",
-        },
-        {
-          role: "user",
-          content: `Question: ${question}\n\nCandidate answer: ${answer}`,
-        },
-      ],
-    }),
+      {
+        role: "user",
+        content: `Question: ${question}\n\nCandidate answer: ${answer}`,
+      },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: examScoreSchema,
+    },
   });
+  const structured = extractStructuredResult(aiResponse);
 
-  const payload = await aiResponse.json();
-  const rawText = payload.output_text ?? "{}";
+  if (!structured) {
+    return c.json({ error: "Workers AI did not return valid evaluation JSON." }, 502);
+  }
 
-  return c.json(JSON.parse(rawText));
+  return c.json(structured);
 });
 
 export default app;

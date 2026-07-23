@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { studyDeskHtml } from "./frontend";
 
 type Env = {
-  AI_API_KEY: string;
+  AI: Ai;
   INSTALLATION_TOKEN: string;
   OPERATION_TOKEN: string;
   NOTES: KVNamespace;
@@ -12,7 +12,23 @@ type Env = {
 
 const app = new Hono<{ Bindings: Env }>();
 
-async function validateQbits(c: Parameters<typeof app.post>[1] extends never ? never : any) {
+function extractText(result: unknown): string | null {
+  if (!result || typeof result !== "object") {
+    return null;
+  }
+
+  if ("response" in result && typeof result.response === "string") {
+    return result.response;
+  }
+
+  if ("result" in result && typeof result.result === "string") {
+    return result.result;
+  }
+
+  return null;
+}
+
+async function validateQbits(c: any) {
   const response = await fetch(c.env.QBITS_VALIDATE_URL, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -47,32 +63,22 @@ app.post("/chat", async (c) => {
 
   const notes = (await c.env.NOTES.get(courseId)) ?? "No notes found for this course.";
 
-  const aiResponse = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${c.env.AI_API_KEY}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4.1-mini",
-      input: [
-        {
-          role: "system",
-          content:
-            "Answer only from the provided study notes. If notes are incomplete, say what is missing.",
-        },
-        {
-          role: "user",
-          content: `Course notes:\n${notes}\n\nStudent question: ${question}`,
-        },
-      ],
-    }),
+  const aiResponse = await c.env.AI.run("@cf/meta/llama-3.1-8b-instruct-fast", {
+    messages: [
+      {
+        role: "system",
+        content:
+          "Answer only from the provided study notes. If notes are incomplete, say what is missing.",
+      },
+      {
+        role: "user",
+        content: `Course notes:\n${notes}\n\nStudent question: ${question}`,
+      },
+    ],
   });
 
-  const payload = await aiResponse.json();
-
   return c.json({
-    answer: payload.output_text ?? "No answer returned.",
+    answer: extractText(aiResponse) ?? "No answer returned.",
     courseId,
   });
 });
