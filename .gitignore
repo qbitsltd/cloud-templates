@@ -1,1 +1,10 @@
 node_modules/
+
+# Wrangler local state and per-machine config
+.wrangler/
+
+# Local development secrets and overrides
+.dev.vars
+.dev.vars.*
+.env
+.env.*
