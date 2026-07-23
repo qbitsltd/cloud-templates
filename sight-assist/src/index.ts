@@ -6,6 +6,7 @@ type Env = {
   AI: Ai;
   INSTALLATION_TOKEN: string;
   OPERATION_TOKEN: string;
+  QBITS_SKIP_VALIDATION?: string;
   QBITS_VALIDATE_URL: string;
   MAX_IMAGE_BYTES: string;
 };
@@ -28,7 +29,46 @@ function extractText(result: unknown): string | null {
   return null;
 }
 
+function formatErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  return "Unknown Workers AI error.";
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error(`Workers AI request timed out after ${timeoutMs}ms.`));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
+function shouldSkipValidation(env: Env) {
+  return env.QBITS_SKIP_VALIDATION === "true";
+}
+
 async function validateQbits(c: any) {
+  if (shouldSkipValidation(c.env)) {
+    return null;
+  }
+
   const response = await fetch(c.env.QBITS_VALIDATE_URL, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -62,26 +102,29 @@ app.post("/analyze-image", async (c) => {
     return c.json({ error: "Image is too large." }, 413);
   }
 
-  const aiResponse = await c.env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct", {
-    messages: [
-      {
-        role: "system",
-        content:
-          "Describe images clearly and mention anything useful for accessibility.",
-      },
-      {
-        role: "user",
-        content:
+  try {
+    const aiResponse = await withTimeout(
+      c.env.AI.run("@cf/llava-hf/llava-1.5-7b-hf", {
+        image: Array.from(Uint8Array.from(atob(base64Image), (char) => char.charCodeAt(0))),
+        prompt:
           prompt ??
           "Describe the image clearly, identify notable objects, and mention anything useful for accessibility.",
-      },
-    ],
-    image: `data:image/png;base64,${base64Image}`,
-  });
+      }),
+      30000,
+    );
 
-  return c.json({
-    analysis: extractText(aiResponse) ?? "No analysis returned.",
-  });
+    return c.json({
+      analysis: extractText(aiResponse) ?? aiResponse.description ?? "No analysis returned.",
+    });
+  } catch (error) {
+    return c.json(
+      {
+        error: "Image analysis failed.",
+        details: formatErrorMessage(error),
+      },
+      502,
+    );
+  }
 });
 
 export default app;

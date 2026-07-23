@@ -7,6 +7,7 @@ type Env = {
   INSTALLATION_TOKEN: string;
   OPERATION_TOKEN: string;
   NOTES: KVNamespace;
+  QBITS_SKIP_VALIDATION?: string;
   QBITS_VALIDATE_URL: string;
 };
 
@@ -28,7 +29,15 @@ function extractText(result: unknown): string | null {
   return null;
 }
 
+function shouldSkipValidation(env: Env) {
+  return env.QBITS_SKIP_VALIDATION === "true";
+}
+
 async function validateQbits(c: any) {
+  if (shouldSkipValidation(c.env)) {
+    return null;
+  }
+
   const response = await fetch(c.env.QBITS_VALIDATE_URL, {
     method: "POST",
     headers: { "content-type": "application/json" },

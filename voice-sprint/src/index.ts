@@ -54,6 +54,7 @@ type Env = {
   AI: Ai;
   INSTALLATION_TOKEN: string;
   OPERATION_TOKEN: string;
+  QBITS_SKIP_VALIDATION?: string;
   QBITS_VALIDATE_URL: string;
 };
 
@@ -65,7 +66,15 @@ type SynthesisRequest = {
 
 const app = new Hono<{ Bindings: Env }>();
 
+function shouldSkipValidation(env: Env) {
+  return env.QBITS_SKIP_VALIDATION === "true";
+}
+
 async function validateQbits(c: any) {
+  if (shouldSkipValidation(c.env)) {
+    return null;
+  }
+
   const response = await fetch(c.env.QBITS_VALIDATE_URL, {
     method: "POST",
     headers: { "content-type": "application/json" },
